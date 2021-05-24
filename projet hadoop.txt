@@ -1,0 +1,130 @@
+--------------------------------- 1ere source de données ---------------------------------------------------------------------
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table CLIENT --username HADOOP --password Hadoop2021 --target-dir /projet/client/ -m 1
+
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table ARTICLE --username HADOOP --password Hadoop2021 --target-dir /projet/article/ -m 1
+
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table COMMANDE --username HADOOP --password Hadoop2021 --target-dir /projet/commande/ -m 1
+
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table DETAILS --username HADOOP --password Hadoop2021 --target-dir /projet/details/ -m 1
+
+---------------------------------- Creation des tables de données 1ere source -----------------------------------------------------------
+
+CREATE EXTERNAL TABLE client (
+idClient double,
+nomClient string,
+genderClient string,
+telClient double,
+ageClient double)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet/client/';
+
+CREATE EXTERNAL TABLE article (
+idArticle double,
+nomArticle string,
+prixArticle double)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet/article/';
+
+CREATE EXTERNAL TABLE commande (
+idCommande double,
+idClient double,
+idPays double,
+numCommande double)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet/commande/';
+
+CREATE EXTERNAL TABLE details (
+idDetails double,
+idCommande double,
+idArticle double,
+quantiteDetails double)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet/details/';
+
+
+CREATE TABLE client_orc (
+idClient double,
+nomClient string,
+genderClient string,
+telClient double,
+ageClient double) STORED AS ORC;
+
+CREATE TABLE article_orc (
+idArticle double,
+nomArticle string,
+prixArticle double) STORED AS ORC;
+
+CREATE TABLE commande_orc (
+idCommande double,
+idClient double,
+idPays double,
+numCommande double) STORED AS ORC;
+
+    
+CREATE TABLE details_orc (
+idDetails double,
+idCommande double,
+idArticle double,
+quantiteDetails double) STORED AS ORC;
+
+-------------------------------------Insertion des données dans les tables ORC ------------------------------------------------------
+insert into client_orc select * from projet.client;
+
+insert into article_orc select * from projet.article;
+
+insert into commande_orc select * from projet.commande;
+
+insert into details_orc select * from projet.details;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------- 2 eme source de données ------------------------------------------------------------------------------------
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table PAYS --username HADOOP1 --password Hadoop2021 --target-dir /projet1/pays/ -m 1
+
+sqoop import --connect jdbc:oracle:thin:@192.168.1.9:1521:xe --table EMPLOYES --username HADOOP1 --password Hadoop2021 --target-dir /projet1/employes/ -m 1
+
+---------------------------------------Creattion des tables de données de la 2eme source de données -----------------------------------------------
+
+CREATE EXTERNAL TABLE employes (
+idEmploye double,
+idPays double,
+prenomEmploye string,
+nomEmploye string,
+emailEmploye string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet1/employes/';
+
+
+CREATE EXTERNAL TABLE pays (
+idPays double,
+Pays string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/projet1/pays/';
+
+CREATE TABLE employes_orc (
+idEmploye double,
+idPays double,
+prenomEmploye string,
+nomEmploye string,
+emailEmploye string) STORED AS ORC;
+
+
+CREATE TABLE pays_orc (
+idPays double,
+Pays string) STORED AS ORC;
+--------------------------------------------Insertion des données dans les tables ORC ------------------------------------------------
+insert into pays_orc select * from projet1.pays;
+
+insert into employes_orc select * from projet1.employes;
